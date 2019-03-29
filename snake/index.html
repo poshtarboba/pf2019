@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Snake</title>
+	<meta charset="utf-8">
+	<meta name="keywords" content="">
+	<meta name="description" content="">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="format-detection" content="telephone=no">
+	<style>
+		body { margin: 0; font-family: Arial, Helvetica, sans-serif; }
+		* { box-sizing: border-box; }
+		.options { float: right; padding-right: 15px; width: 300px; }
+		.options .fps { float: right; font-size: 60%; }
+		.options .snake-face { display: inline-block; margin: 8px 8px 0 0; padding: 8px; vertical-align: top; border: 1px solid silver; cursor: pointer; opacity: 0.5; }
+		.options .snake-face:hover { opacity: 0.75; }
+		.options .snake-face.active { border-color: blue; opacity: 1; }
+		.options .snake-face img { display: block;}
+		.canvas-wrap { position: relative; margin-right: 300px; height: 100vh; border: 15px solid transparent; }
+		.canvas-wrap canvas { position: relative; display: block; width: 100%; height: 100%; border: 1px solid silver; }
+		.canvas-wrap canvas.pause { opacity: 0.3; cursor: pointer; }
+		.canvas-wrap canvas.pause:hover { opacity: 0.5; }
+	</style>
+</head>
+<body>
+
+<div class="options">
+	<p><strong>Esc</strong> - пауза <span class="fps">ms: <span id="fps">0</span></span></p>
+	<p>&nbsp;</p>
+
+	<p>Координати центру: <span id="center_coords">-</span></p>
+	<p>
+		<label>
+			Розмір сітки:
+			<select id="grid_size">
+				<option>10</option>
+				<option selected>20</option>
+				<option>30</option>
+				<option>40</option>
+				<option>50</option>
+			</select>
+			px
+		</label>
+	</p>
+	<p>
+		<label>
+			Макс. швидкість:
+			<select id="speed">
+				<option>12</option>
+				<option>25</option>
+				<option>50</option>
+				<option selected>100</option>
+				<option>200</option>
+				<option>400</option>
+				<option>800</option>
+			</select>
+			px/s
+		</label>
+	</p>
+	<p>
+		<label>
+			Функція швидкості:
+			<select id="f_speed">
+				<option value="sqrt">корінь</option>
+				<option value="line" selected>лінія</option>
+				<option value="sqr">квадрат</option>
+			</select>
+		</label>
+	</p>
+	<p>
+		Зовнішній вигляд:<br>
+		<span class="snake-face active"><img src="smile1.png" alt="smile"></span>
+		<span class="snake-face"><img src="smile2.png" alt="devil"></span>
+		<span class="snake-face"><img src="smile3.png" alt="star"></span>
+		<span class="snake-face"><img src="smile4.png" alt="mushroom"></span>
+		<span class="snake-face"><img src="smile5.png" alt="alien"></span>
+	</p>
+	
+
+</div>
+<div class="canvas-wrap">
+	<canvas id="snake"></canvas>
+</div>
+
+
+<script src="snake.js"></script>
+<script>
+
+(function(){
+
+	let canvas = document.getElementById('snake');
+	let options = getDefaultOptions();
+
+	let snake = new Snake(canvas, options, drawFrameCallback);
+	
+	optionsControls(snake);
+	
+	function getDefaultOptions(){
+		let options = {
+			gridSize: +document.getElementById('grid_size').value,
+			speed: +document.getElementById('speed').value,
+			funSpeed: document.getElementById('f_speed').value,
+			snakeFace: document.querySelector('.snake-face.active img')
+		};
+		return options;
+	}
+	
+	function optionsControls(snake){
+		window.addEventListener('resize', function(){
+			snake.refresh();
+		});
+		document.getElementById('grid_size').addEventListener('change', function(){
+			snake.options.gridSize = +this.value;
+			snake.refresh();
+		});
+		document.getElementById('speed').addEventListener('change', function(){
+			snake.options.speed = +this.value;
+			snake.refresh();
+		});
+		document.getElementById('f_speed').addEventListener('change', function(){
+			snake.options.funSpeed = +this.value;
+			snake.refresh();
+		});
+		let snakeFaces = document.querySelectorAll('.snake-face');
+		snakeFaces.forEach(function(span){
+			span.addEventListener('click', function(){
+				snakeFaces.forEach(function(span){ span.classList.remove('active'); });
+				this.classList.add('active');
+				snake.options.snakeFace = this.children[0];
+				snake.refresh();
+			});
+		});
+	}
+	
+	function drawFrameCallback(snake){
+		document.getElementById('center_coords').innerText = Math.round(snake.centerX) + ' x ' + Math.round(snake.centerY);
+		document.getElementById('fps').innerText = snake.deltaTime;
+	}
+
+})();
+
+</script>
+
+</body>
+</html>
